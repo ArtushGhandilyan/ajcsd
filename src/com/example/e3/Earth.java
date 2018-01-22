@@ -10,6 +10,8 @@ import java.util.Date;
 public class Earth
 		implements Serializable {
 
+	private static final long serialVersionUID = 12144L;
+
 	private static Earth instance;
 
 	private long creationDate;
