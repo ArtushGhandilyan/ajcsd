@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Queue;
+import java.util.Random;
 import java.util.concurrent.*;
 
 /**
@@ -82,11 +83,12 @@ public class MultiThreadSerializationDeserialization
 
 		@Override
 		public void run() {
+			Random random = new Random();
 			int i = 0;
 			while (++i < 100) {
 				try {
 					latch.await();
-					Country country = new Country("name" + i, String.valueOf(i), (int) (Math.random() * 1000000));
+					Country country = new Country("name" + i, String.valueOf(i), random.nextInt(10));
 					queue.add(country);
 					actions.add(new Action("Creator", country.code));
 					Thread.sleep(50L);
@@ -118,13 +120,15 @@ public class MultiThreadSerializationDeserialization
 		@Override
 		public void run() {
 			long sleepDuration;
-			while (true) {
+			int i = 0;
+			Random random = new Random();
+			while (++i < 1000) {
 				try {
 					latch.await();
 					Country country = queue1.take();
 					queue2.add(serialize(country));
 					actions.add(new Action("Serializer", country.code));
-					sleepDuration = (int) (Math.random() * 100 + 1);
+					sleepDuration = random.nextInt(6);
 					Thread.sleep(sleepDuration);
 
 				}
@@ -167,13 +171,15 @@ public class MultiThreadSerializationDeserialization
 		@Override
 		public void run() {
 			long sleepDuration;
-			while (true) {
+			int i = 0;
+			Random random = new Random();
+			while (++i < 10000) {
 				try {
 					latch.await();
 					String filePath = queue2.take();
 					queue1.add(deserialize(filePath));
 					actions.add(new Action("Deserializer", filePath));
-					sleepDuration = (int) (Math.random() * 100 + 1);
+					sleepDuration = random.nextInt(6);
 					Thread.sleep(sleepDuration);
 				}
 				catch (Exception e) {
